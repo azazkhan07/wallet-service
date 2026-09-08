@@ -16,4 +16,6 @@ public interface WalletService {
     void creditWallet(CreditRequest request);
 
     void debitWallet(DebitRequest request);
+
+    WalletResponse getWalletById(Long walletId);
 }

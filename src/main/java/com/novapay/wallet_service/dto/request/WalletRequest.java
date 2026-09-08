@@ -29,9 +29,7 @@ public class WalletRequest {
     @Positive(message = "UserId must be positive")
     private Long userId;
     @Schema(example = "ACTIVE",description = "Wallet status")
-    @NotNull(message = "Wallet status is required")
     private WalletStatus status;
     @Schema(example = "INR",description = "Wallet currency")
-    @NotNull(message = "Currency is required")
     private CurrencyCode currency;
 }

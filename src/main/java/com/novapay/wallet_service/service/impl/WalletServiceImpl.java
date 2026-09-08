@@ -88,8 +88,7 @@ public class WalletServiceImpl implements WalletService {
         return new BalanceResponse(
                 walletId,
                 walletBalance.getAvailableBalance(),
-                walletBalance.getBlockedBalance()
-        );
+                walletBalance.getBlockedBalance());
     }
 
     @Override
@@ -105,8 +104,7 @@ public class WalletServiceImpl implements WalletService {
                 .findByWalletId(request.getWalletId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Wallet balance not found for walletId "
-                                + request.getWalletId())
-                );
+                                + request.getWalletId()));
 
         walletBalance.setAvailableBalance(
                 walletBalance.getAvailableBalance()
@@ -134,8 +132,7 @@ public class WalletServiceImpl implements WalletService {
                 .findByWalletId(request.getWalletId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Wallet balance not found for walletId "
-                                + request.getWalletId())
-                );
+                                + request.getWalletId()));
 
         if (walletBalance.getAvailableBalance()
                 .compareTo(request.getAmount()) < 0) {
@@ -163,5 +160,14 @@ public class WalletServiceImpl implements WalletService {
                 request.getWalletId(),
                 request.getAmount(),
                 walletBalance.getAvailableBalance());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public WalletResponse getWalletById(Long walletId) {
+        Wallet wallet = walletRepository.findById(walletId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Wallet not found for walletId " + walletId));
+        return walletMapper.toResponseDTO(wallet);
     }
 }

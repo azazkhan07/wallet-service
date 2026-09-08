@@ -1,6 +1,7 @@
 package com.novapay.wallet_service.exception;
 
 import com.novapay.wallet_service.dto.ApiError;
+import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,8 +17,7 @@ public class WalletExceptionHandler {
             LoggerFactory.getLogger(WalletExceptionHandler.class);
 
     @ExceptionHandler(WalletAlreadyExistsException.class)
-    public ResponseEntity<ApiError> handleWalletExists(
-            WalletAlreadyExistsException ex) {
+    public ResponseEntity<ApiError> handleWalletExists(WalletAlreadyExistsException ex) {
 
         ApiError error = new ApiError(
                 HttpStatus.CONFLICT.value(),
@@ -39,8 +39,7 @@ public class WalletExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> handleResourceNotFound(
-            ResourceNotFoundException ex) {
+    public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex) {
 
         ApiError error = new ApiError(
                 HttpStatus.NOT_FOUND.value(),
@@ -48,13 +47,10 @@ public class WalletExceptionHandler {
                 ex.getMessage(),
                 LocalDateTime.now());
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(error);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
     @ExceptionHandler(InsufficientBalanceException.class)
-    public ResponseEntity<ApiError> handleInsufficientBalance(
-            InsufficientBalanceException ex) {
+    public ResponseEntity<ApiError> handleInsufficientBalance(InsufficientBalanceException ex) {
 
         ApiError error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
@@ -62,8 +58,16 @@ public class WalletExceptionHandler {
                 ex.getMessage(),
                 LocalDateTime.now());
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(error);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(FeignException.BadRequest.class)
+    public ResponseEntity<ApiError> handleFeignException(FeignException.BadRequest ex) {
+        ApiError error = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.name(),
+                ex.getMessage(),
+                LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
     }

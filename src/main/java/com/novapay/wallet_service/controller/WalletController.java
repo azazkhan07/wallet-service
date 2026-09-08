@@ -24,25 +24,27 @@ import org.springframework.web.bind.annotation.*;
 public class WalletController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WalletController.class);
-    private  final WalletService walletService;
+    private final WalletService walletService;
 
 
     public WalletController(WalletService walletService) {
         this.walletService = walletService;
 
     }
+
     @Operation(summary = "Create wallet for user")
     @ApiResponses({@ApiResponse(responseCode = "201", description = "Wallet created"),
-    @ApiResponse(responseCode = "409", description = "Wallet already exists")})
+            @ApiResponse(responseCode = "409", description = "Wallet already exists")})
     @PostMapping()
     public ResponseEntity<WalletResponse> createWallet(@Valid @RequestBody WalletRequest walletRequest) {
         LOGGER.info("Creating wallet for user {}", walletRequest.getUserId());
         WalletResponse response = walletService.createWallet(walletRequest.getUserId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
     @Operation(summary = "Get wallet for user")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "Wallet Found"),
-    @ApiResponse(responseCode = "404", description = "Wallet Not Found")})
+            @ApiResponse(responseCode = "404", description = "Wallet Not Found")})
     @GetMapping("/{userId}")
     public ResponseEntity<WalletResponse> getWallet(@PathVariable Long userId) {
         WalletResponse response = walletService.getWalletByUserId(userId);
@@ -52,7 +54,7 @@ public class WalletController {
 
     @Operation(summary = "Get wallet balance")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "Balance fetched successfully"),
-    @ApiResponse(responseCode = "404", description = "Wallet not found")})
+            @ApiResponse(responseCode = "404", description = "Wallet not found")})
     @GetMapping("/{walletId}/balance")
     public ResponseEntity<BalanceResponse> getBalance(@PathVariable Long walletId) {
         LOGGER.info("Balance request received for walletId {}", walletId);
@@ -62,7 +64,7 @@ public class WalletController {
 
     @Operation(summary = "Credit money into wallet")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "Wallet credited successfully"),
-    @ApiResponse(responseCode = "404", description = "Wallet not found")})
+            @ApiResponse(responseCode = "404", description = "Wallet not found")})
     @PostMapping("/credit")
     public ResponseEntity<String> creditWallet(@Valid @RequestBody CreditRequest request) {
         LOGGER.info("Credit request received | walletId={} amount={}", request.getWalletId(), request.getAmount());
@@ -72,13 +74,18 @@ public class WalletController {
 
     @Operation(summary = "Debit money from wallet")
     @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Wallet debited successfully"),
-    @ApiResponse(responseCode = "400", description = "Insufficient balance"),
-    @ApiResponse(responseCode = "404", description = "Wallet not found")})
+            @ApiResponse(responseCode = "200", description = "Wallet debited successfully"),
+            @ApiResponse(responseCode = "400", description = "Insufficient balance"),
+            @ApiResponse(responseCode = "404", description = "Wallet not found")})
     @PostMapping("/debit")
     public ResponseEntity<String> debitWallet(@Valid @RequestBody DebitRequest request) {
         LOGGER.info("Debit request received | walletId={} amount={}", request.getWalletId(), request.getAmount());
         walletService.debitWallet(request);
         return ResponseEntity.status(HttpStatus.OK).body("Wallet debited successfully");
+    }
+
+    @GetMapping("/id/{walletId}")
+    public ResponseEntity<WalletResponse> getWalletById(@PathVariable Long walletId) {
+        return ResponseEntity.ok(walletService.getWalletById(walletId));
     }
 }
