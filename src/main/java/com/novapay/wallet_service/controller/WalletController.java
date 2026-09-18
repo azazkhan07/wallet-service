@@ -1,4 +1,3 @@
-
 package com.novapay.wallet_service.controller;
 
 import com.novapay.wallet_service.dto.request.CreditRequest;
@@ -12,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,17 +20,12 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Wallets APIs", description = "Wallet Management Endpoints")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/wallets")
 public class WalletController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WalletController.class);
     private final WalletService walletService;
-
-
-    public WalletController(WalletService walletService) {
-        this.walletService = walletService;
-
-    }
 
     @Operation(summary = "Create wallet for user")
     @ApiResponses({@ApiResponse(responseCode = "201", description = "Wallet created"),

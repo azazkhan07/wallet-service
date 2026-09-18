@@ -1,4 +1,3 @@
-
 package com.novapay.wallet_service.service.impl;
 
 import com.novapay.wallet_service.dto.request.CreditRequest;
@@ -20,9 +19,10 @@ import com.novapay.wallet_service.util.WalletNumberGenerator;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -67,6 +67,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    @Cacheable(value = "walletsByUserId", key = "#userId")
     public WalletResponse getWalletByUserId(Long userId) {
         LOGGER.info("Get wallet by user id {}", userId);
         Wallet wallet = walletRepository
@@ -92,11 +93,11 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    @CacheEvict(value = "walletsById", key = "#request.walletId")
     @Transactional
     public void creditWallet(CreditRequest request) {
 
-        LOGGER.info(
-                "Credit request received | walletId={} amount={}",
+        LOGGER.info("Credit request received | walletId={} amount={}",
                 request.getWalletId(),
                 request.getAmount());
 
@@ -112,19 +113,18 @@ public class WalletServiceImpl implements WalletService {
         walletBalance.setUpdatedAt(LocalDateTime.now());
         walletBalanceRepository.save(walletBalance);
 
-        LOGGER.info(
-                "Wallet credited successfully | walletId={} amount={} newBalance={}",
+        LOGGER.info("Wallet credited successfully | walletId={} amount={} newBalance={}",
                 request.getWalletId(),
                 request.getAmount(),
                 walletBalance.getAvailableBalance());
     }
 
     @Override
+    @CacheEvict(value = "walletsById", key = "#request.walletId")
     @Transactional
     public void debitWallet(DebitRequest request) {
 
-        LOGGER.info(
-                "Debit request received | walletId={} amount={}",
+        LOGGER.info("Debit request received | walletId={} amount={}",
                 request.getWalletId(),
                 request.getAmount());
 
@@ -137,8 +137,7 @@ public class WalletServiceImpl implements WalletService {
         if (walletBalance.getAvailableBalance()
                 .compareTo(request.getAmount()) < 0) {
 
-            LOGGER.warn(
-                    "Insufficient balance | walletId={} availableBalance={} requestedAmount={}",
+            LOGGER.warn("Insufficient balance | walletId={} availableBalance={} requestedAmount={}",
                     request.getWalletId(),
                     walletBalance.getAvailableBalance(),
                     request.getAmount());
@@ -155,14 +154,14 @@ public class WalletServiceImpl implements WalletService {
 
         walletBalanceRepository.save(walletBalance);
 
-        LOGGER.info(
-                "Wallet debited successfully | walletId={} amount={} remainingBalance={}",
+        LOGGER.info("Wallet debited successfully | walletId={} amount={} remainingBalance={}",
                 request.getWalletId(),
                 request.getAmount(),
                 walletBalance.getAvailableBalance());
     }
 
     @Override
+    @Cacheable(value = "walletsById", key = "#walletId")
     @Transactional(readOnly = true)
     public WalletResponse getWalletById(Long walletId) {
         Wallet wallet = walletRepository.findById(walletId)
