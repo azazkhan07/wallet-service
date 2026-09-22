@@ -1,5 +1,6 @@
     package com.novapay.wallet_service.config;
 
+    import com.novapay.wallet_service.exception.SecurityExceptionHandler;
     import lombok.RequiredArgsConstructor;
     import org.springframework.beans.factory.annotation.Value;
     import org.springframework.context.annotation.Bean;
@@ -24,6 +25,8 @@
     public class SecurityConfig {
 
         private final InternalServiceAuthenticationFilter internalServiceAuthenticationFilter;
+        private final SecurityExceptionHandler securityExceptionHandler;
+
         @Value("${jwt.secret}")
         private String secret;
 
@@ -34,6 +37,10 @@
                     .sessionManagement(session ->
                             session.sessionCreationPolicy(
                                     SessionCreationPolicy.STATELESS))
+                    .exceptionHandling(exceptionHandling ->
+                            exceptionHandling
+                                    .authenticationEntryPoint(securityExceptionHandler)
+                                    .accessDeniedHandler(securityExceptionHandler))
                     .authorizeHttpRequests(auth -> auth
 
                             .requestMatchers(
